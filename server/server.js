@@ -11,20 +11,32 @@ import { Server } from 'socket.io';
 const app = express();
 const server = http.createServer(app);
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://chat-app-ashen-xi-75.vercel.app',
+];
+
 app.use(cors({
-  origin: 'https://chat-app-ashen-xi-75.vercel.app',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS policy violation: Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
+
 
 app.use(express.json({ limit: '4mb' }));
 
 // Socket.IO Setup
 export const io = new Server(server, {
   cors: {
-    origin: 'https://chat-app-ashen-xi-75.vercel.app',
-    methods: ["GET", "POST", "PUT"],
-    credentials: true
-  }
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PUT"],
+  credentials: true
+}
 });
 
 //Store online users
