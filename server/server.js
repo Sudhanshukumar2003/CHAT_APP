@@ -7,25 +7,25 @@ import userRouter from './routes/userRoutes.js';
 import messageRouter from './routes/messageRoutes.js';
 import { Server } from 'socket.io';
 
-const express = require('express');
-const cors = require('cors');
-
-
-// Enable CORS for your frontend domain
-app.use(cors({
-  origin: 'https://chat-app-ashen-xi-75.vercel.app',
-  credentials: true // if you're using cookies/auth headers
-}));
-
-
 //create express app and HTTP server
 const app = express();
 const server = http.createServer(app);
 
-// Initialize Socket.IO
+app.use(cors({
+  origin: 'https://chat-app-ashen-xi-75.vercel.app',
+  credentials: true,
+}));
+
+app.use(express.json({ limit: '4mb' }));
+
+// Socket.IO Setup
 export const io = new Server(server, {
-    cors: {origins: '*'}
-})
+  cors: {
+    origin: 'https://chat-app-ashen-xi-75.vercel.app',
+    methods: ["GET", "POST", "PUT"],
+    credentials: true
+  }
+});
 
 //Store online users
 export const userSocketMap = {}; //{userId: socketId}
@@ -49,9 +49,6 @@ io.on("connection", (socket) => {
     });
 })
 
-//middleware
-app.use(express.json({limit: '4mb'}));
-app.use(cors());
 
 //routes setup
 app.use("/api/status", (req,res)=> res.send("Server is live"));
@@ -64,7 +61,7 @@ await connectDB();
 //start server
 if(process.env.NODE_ENV !== "production") {
     const PORT = process.env.PORT || 5000;
-    server.listen(PORT, ()=> console.log("Server is running on PORT: " + PORT));
+    server.listen(PORT, ()=> console.log("Server is running on PORT: ", PORT));
 
 }
 
