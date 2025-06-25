@@ -7,6 +7,16 @@ import userRouter from './routes/userRoutes.js';
 import messageRouter from './routes/messageRoutes.js';
 import { Server } from 'socket.io';
 
+const express = require('express');
+const cors = require('cors');
+
+
+// Enable CORS for your frontend domain
+app.use(cors({
+  origin: 'https://chat-app-ashen-xi-75.vercel.app',
+  credentials: true // if you're using cookies/auth headers
+}));
+
 
 //create express app and HTTP server
 const app = express();
