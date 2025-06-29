@@ -26,7 +26,7 @@ This app allows users to send and receive messages instantly, track online users
 ---
 
 ## 🌐 Live Demo
-👉 [View Live App]( https://quickchat.greatstack.in](https://chat-app-git-main-sudhanshukumar2003s-projects.vercel.app/login ))
+👉  https://chat-app-git-main-sudhanshukumar2003s-projects.vercel.app/login
 
 ---
 
