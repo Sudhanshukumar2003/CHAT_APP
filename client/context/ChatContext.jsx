@@ -23,7 +23,9 @@ export const ChatProvider =({ children })=> {
                 setUnseenMessages(data.unseenMessages);
             }
         } catch (error) {
-                toast.error(error.message);
+            console.error('Failed to get users:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to load users';
+            toast.error(errorMessage);
         }
         
     }
@@ -34,10 +36,11 @@ export const ChatProvider =({ children })=> {
             const {data} = await axios.get(`/api/messages/${userId}`);
             if (data.success) {
                 setMessages(data.messages);
-                
             } 
         } catch (error) {
-            toast.error(error.message);
+            console.error('Failed to get messages:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to load messages';
+            toast.error(errorMessage);
         }
     }
 
@@ -47,12 +50,13 @@ export const ChatProvider =({ children })=> {
             const {data} = await axios.post(`/api/messages/send/${selectedUser._id}`, messageData);
             if( data.success) {
                 setMessages((prevMessages) => [...prevMessages, data.newMessage]);
-                
             }else{
                 toast.error(data.message);
             }
         }catch (error) {
-            toast.error(error.message);
+            console.error('Failed to send message:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to send message';
+            toast.error(errorMessage);
         }
     }
     
@@ -61,12 +65,12 @@ export const ChatProvider =({ children })=> {
         if(!socket) return;
         socket.on('newMessage', (newMessage) => {
             if(selectedUser && newMessage.senderId === selectedUser._id) {
-                newMessage.isSeen = true;
+                newMessage.seen = true;
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 axios.put(`/api/messages/mark/${newMessage._id}`);
             }else{
                 setUnseenMessages((prevUnseenMessages) => ({
-                    ...prevUnseenMessages, [newMessage.senderId]: 
+                    ...prevUnseenMessages, [newMessage.senderId] : 
                     prevUnseenMessages[newMessage.senderId] ? prevUnseenMessages 
                     [newMessage.senderId] + 1 : 1
                         
@@ -77,8 +81,7 @@ export const ChatProvider =({ children })=> {
 
     //function to unsubscribe From messages 
     const unsubscribeFromMessages = () => {
-        if(!socket) return;
-        socket.off('newMessage');
+        if(socket) socket.off('newMessage');
     }
 
     useEffect(() => {

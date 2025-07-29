@@ -1,5 +1,14 @@
-  {
+{
     "version": 2,
+    "env": {
+        "MONGODB_URI": "@mongodb_uri",
+        "JWT_SECRET": "@jwt_secret",
+        "CLOUDINARY_CLOUD_NAME": "@cloudinary_cloud_name",
+        "CLOUDINARY_API_KEY": "@cloudinary_api_key",
+        "CLOUDINARY_API_SECRET": "@cloudinary_api_secret",
+        "FRONTEND_URL": "@frontend_url",
+        "NODE_ENV": "production"
+    },
     "builds": [
         {
             "src": "server.js",
@@ -16,5 +25,10 @@
             "src": "/(.*)",
             "dest": "server.js"
         }
-    ]
+    ],
+    "functions": {
+        "server.js": {
+            "maxDuration": 30
+        }
+    }
 }

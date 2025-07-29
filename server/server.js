@@ -11,10 +11,22 @@ import { Server } from 'socket.io';
 const app = express();
 const server = http.createServer(app);
 
+// Configure CORS for production
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [process.env.FRONTEND_URL, /\.vercel\.app$/] 
+    : ["http://localhost:3000", "http://localhost:5173"],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'token']
+};
 
-// Socket.IO Setup
+// Socket.IO Setup with proper CORS configuration
 export const io = new Server(server, {
-  cors: {origin: "*"}
+  cors: corsOptions,
+  transports: ['websocket', 'polling'],
+  pingTimeout: 60000,
+  pingInterval: 25000
 });
 
 //Store online users
@@ -41,10 +53,15 @@ io.on("connection", (socket) => {
 
 //Middleware setup
 app.use(express.json({limit: "4mb"}));
-app.use(cors());
+app.use(cors(corsOptions));
+
+// Add health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
 
 //routes setup
-app.use("/api/status", (req,res)=> res.send("Server is live"));
+app.use("/api/status", (req,res)=> res.json({status: "Server is live", timestamp: new Date().toISOString()}));
 app.use("/api/auth",userRouter);
 app.use("/api/messages",messageRouter);
 
@@ -52,11 +69,8 @@ app.use("/api/messages",messageRouter);
 await connectDB();
 
 //start server
-if(process.env.NODE_ENV !== "production") {
-    const PORT = process.env.PORT || 5000;
-    server.listen(PORT, ()=> console.log("Server is running on PORT: "+ PORT));
-
-}
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, ()=> console.log("Server is running on PORT: "+ PORT));
 
 //Export the server for Vercel or other platforms
 export default server;
